@@ -12,14 +12,14 @@ type collection struct {
 }
 
 type CollectionOptions struct {
-	baseUrl string
+	BaseUrl string
 }
 
 func NewCollection(collectionName string, options CollectionOptions) *collection {
-	if options.baseUrl != "" {
+	if options.BaseUrl != "" {
 		return &collection{
 			name:    collectionName,
-			baseUrl: options.baseUrl,
+			baseUrl: options.BaseUrl,
 		}
 	}
 	return &collection{
