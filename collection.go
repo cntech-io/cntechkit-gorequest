@@ -1,6 +1,7 @@
 package cntechkitgorequest
 
 import (
+	"bytes"
 	"fmt"
 	"net/http"
 )
@@ -43,7 +44,14 @@ func (c *collection) CreateClients() *client {
 			url = fmt.Sprintf("%v%v", r.url, r.path)
 		}
 
-		req, err := http.NewRequest(r.method, url, nil)
+		var body *bytes.Buffer
+		if r.body != nil {
+			body = bytes.NewBuffer(r.body)
+		} else {
+			body = bytes.NewBuffer([]byte{})
+		}
+
+		req, err := http.NewRequest(r.method, url, body)
 		if err != nil {
 			fmt.Println("error creating request for", r.key, "error: ", err)
 		}
@@ -90,6 +98,7 @@ func (c *collection) Log() *collection {
 		for key, value := range request.queries {
 			fmt.Println("\t \t", key, ":", value)
 		}
+		fmt.Println("\t ", "body:", string(request.body))
 		fmt.Println("\t ", "basic auth info:", request.username, request.password)
 	}
 

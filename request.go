@@ -1,6 +1,7 @@
 package cntechkitgorequest
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 )
@@ -14,6 +15,7 @@ type request struct {
 	username string
 	password string
 	path     string
+	body     []byte
 }
 
 func NewGetRequest(key string, url string) *request {
@@ -108,6 +110,15 @@ func (r *request) AddPath(path string) *request {
 	} else {
 		r.path = fmt.Sprintf("/%v", path)
 	}
+	return r
+}
+
+func (r *request) AddBody(body interface{}) *request {
+	bodyBtye, err := json.Marshal(body)
+	if err != nil {
+		fmt.Println("error marshalling body for", r.key, "error: ", err)
+	}
+	r.body = bodyBtye
 	return r
 }
 
