@@ -1,3 +1,9 @@
+### install
+
+```bash
+go get github.com/cntech-io/cntechkit-redis/v2
+```
+
 ## Methods
 
 | Method                                                                  | Description                                                     |
