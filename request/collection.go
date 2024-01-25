@@ -1,4 +1,4 @@
-package cntechkitgorequest
+package request
 
 import (
 	"bytes"
