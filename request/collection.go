@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-type collection struct {
+type Collection struct {
 	name     string
 	baseUrl  string
 	requests []*request
@@ -16,25 +16,38 @@ type CollectionOptions struct {
 	BaseUrl string
 }
 
-func NewCollection(collectionName string, options CollectionOptions) *collection {
+func NewCollection(collectionName string, options CollectionOptions) *Collection {
 	if options.BaseUrl != "" {
-		return &collection{
+		return &Collection{
 			name:    collectionName,
 			baseUrl: options.BaseUrl,
 		}
 	}
-	return &collection{
+	return &Collection{
 		name: collectionName,
 	}
 }
 
-func (c *collection) AddRequest(r *request) *collection {
+func (c *Collection) AddRequest(r *request) *Collection {
 	c.requests = append(c.requests, r)
 	return c
 }
 
-func (c *collection) CreateClients() *client {
-	var _client client
+func (c *Collection) UpdateRequest(key string, r *request) *Collection {
+	if len(c.requests) == 0 {
+		return c
+	}
+
+	for index, request := range c.requests {
+		if request.key == key {
+			c.requests[index] = r
+		}
+	}
+	return c
+}
+
+func (c *Collection) CreateClients() *Client {
+	var _client Client
 	for _, r := range c.requests {
 		var url string = r.url
 		if c.baseUrl != "" {
@@ -82,7 +95,7 @@ func (c *collection) CreateClients() *client {
 
 }
 
-func (c *collection) Log() *collection {
+func (c *Collection) Log() *Collection {
 	fmt.Println("Collection Name:\t", c.name)
 	fmt.Println("Base Url:\t\t", c.baseUrl)
 	fmt.Println("Request Count:\t\t", len(c.requests))

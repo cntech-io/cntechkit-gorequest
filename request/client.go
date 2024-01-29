@@ -7,9 +7,9 @@ import (
 	"net/http"
 )
 
-type client map[string]*http.Request
+type Client map[string]*http.Request
 
-func (cl client) Result(key string) (interface{}, error) {
+func (cl Client) Result(key string) (interface{}, error) {
 	httpClient := &http.Client{}
 	req := cl[key]
 	resp, err := httpClient.Do(req)
