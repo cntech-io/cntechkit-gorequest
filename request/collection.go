@@ -33,6 +33,18 @@ func (c *Collection) AddRequest(r *request) *Collection {
 	return c
 }
 
+func (c *Collection) GetRequest(key string) *request {
+	if len(c.requests) == 0 {
+		return nil
+	}
+	for _, request := range c.requests {
+		if request.key == key {
+			return request
+		}
+	}
+	return nil
+}
+
 func (c *Collection) UpdateRequest(key string, r *request) *Collection {
 	if len(c.requests) == 0 {
 		return c
@@ -46,33 +58,50 @@ func (c *Collection) UpdateRequest(key string, r *request) *Collection {
 	return c
 }
 
+func (c *Collection) CreateClient(key string) *Client {
+	var _client Client
+	var r *request = findRequest(c, key)
+
+	var url string = makeUrl(c, r)
+
+	var body *bytes.Buffer = makeBody(r)
+
+	req, err := http.NewRequest(r.method, url, body)
+	if err != nil {
+		fmt.Println("error creating request for", r.key, "error: ", err)
+	}
+
+	req = AddQuery(req, r.queries)
+
+	for key, value := range r.headers {
+		req.Header.Add(key, value)
+	}
+
+	if r.username != "" && r.password != "" {
+		req.SetBasicAuth(r.username, r.password)
+	}
+
+	_client = map[string]*http.Request{
+		key: req,
+	}
+
+	return &_client
+}
+
 func (c *Collection) CreateClients() *Client {
 	var _client Client
 	for _, r := range c.requests {
-		var url string = r.url
-		if c.baseUrl != "" {
-			url = fmt.Sprintf("%v%v", c.baseUrl, r.url)
-		}
-		if r.path != "" {
-			url = fmt.Sprintf("%v%v", r.url, r.path)
-		}
 
-		var body *bytes.Buffer
-		if r.body != nil {
-			body = bytes.NewBuffer(r.body)
-		} else {
-			body = bytes.NewBuffer([]byte{})
-		}
+		var url string = makeUrl(c, r)
+
+		var body *bytes.Buffer = makeBody(r)
 
 		req, err := http.NewRequest(r.method, url, body)
 		if err != nil {
 			fmt.Println("error creating request for", r.key, "error: ", err)
 		}
-		query := req.URL.Query()
-		for key, value := range r.queries {
-			query.Add(key, value)
-		}
-		req.URL.RawQuery = query.Encode()
+
+		req = AddQuery(req, r.queries)
 
 		for key, value := range r.headers {
 			req.Header.Add(key, value)
